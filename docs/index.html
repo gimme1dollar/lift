@@ -149,8 +149,8 @@
       
           <div class="content has-text-justified">
             <p>
-              LiFT automates the acquisition of visuomotor skills with the guidance of foundation models (FMs) for reinforcment learning (RL) agents.
-              Our framework consists of two phases: <b>1) task instruction proposal </b> with large languge model (LLM) and <b>2) policy learning </b> with the guidance of vision-language model (VLM).
+              LiFT automates the acquisition of visuomotor skills with the guidance of foundation models (FMs) for reinforcement learning (RL) agents. 
+              Our framework consists of two phases: <b>1) task instruction proposal</b> with the large language model (LLM) and <b>2) policy learning</b> with the guidance of the vision-language model (VLM).  
             </p>
           </div>
           <!-- Re-rendering. -->
@@ -164,13 +164,13 @@
           <div class="content has-text-justified">
             <h4 class="title is-5">1. LLM Task Instruction Proposal </h4>
             <p>
-              LLM is used to generate a grounded set of <i>imagined</i> task instructions that are considered to be useful.
-              For example, if the agent is initialized in front of a cow with a bucket in its hand, LLM proposes "to milk a cow".
+              LLM is used to generate a grounded set of useful <i>imagined</i> task instructions.
+              For example, if the agent is in front of a cow with a bucket in its hand, LLM proposes "to milk a cow".
             </p>
             <br>
             <h4 class="title is-5">2. VLM-Guided Policy Learning </h4>
             <p>
-              VLM is leveraged to compute the reward measuring the alignmnet score between the video rollout and corresponding language instructions,
+              VLM is leveraged to compute the reward measuring the alignment score between the video rollout and corresponding language instructions,
               for training a multi-task policy that performs semantically meaningful behaviors.
             </p>
 
@@ -191,7 +191,7 @@
           <h3 class="title is-3">On Open-ended Environment</h3>
             <p>
               We verify our method in a challenging open-ended MineDojo environment.
-              We compare our method with conventional unsupervised RL algorithms with entropy-maximizing objective.
+              We compare our method with conventional unsupervised RL algorithms with the entropy-maximizing objective.
             </p>
           <br>
 
@@ -199,7 +199,7 @@
             <h4 class="title is-5">Comparison with Baselines</h4>
             <p>
               Our approach achieves outperforming success rates compared to unsupervised RL baselines (APT and APT w/ MineCLIP) 
-              and even comparable with the baseline using human supervision for task proposal (LiFT w/o LLM) in the zero-shot evaluation.
+              and is even comparable with the baseline using human supervision for task proposal (LiFT w/o LLM) in the zero-shot evaluation.
             </p>
             <br>
             <div class="content has-text-centered">
@@ -213,7 +213,7 @@
             </div>
 
             <p>
-              LiFT succeeds to train a policy equipped with semantically meaningful behavior.
+              LiFT succeeds in training a policy equipped with semantically meaningful behavior.
               On the other hand, the success rates of unsupervised RL baselines are even less than the VPT baseline.
             </p>
           </div>
@@ -232,10 +232,10 @@
               The trajectories from LiFT agent exhibit efficient approaching behaviors toward the target, 
               compared to the undirected random trajectories from APT agents.
               -->
-              LiFT agent exhibit efficient trajectories toward the target entity.
-              APT agents, however, do not show semantically meaningful but 
+              LiFT agents exhibit efficient trajectories toward the target entity.
+              APT agents, however, do not show semantic meaning but 
               just wander around a wide range of regions or gaze on diverse entities,
-              despite it tries maximizing the objective of diversity.
+              despite trying maximizing the objective of diversity.
             </p>
           <br />
 
@@ -252,14 +252,14 @@
           <h2 class="title is-3">Toward Scalable Learning</h2>
             <p>
               We examine the effects of each strategy used in our experiment.
-              We, then, analyze limitations of current FMs used in our experiment for scaling learning with suggesting possible future directions.
+              We, then, analyze the limitations of current FMs used in our experiment for scaling learning and suggest possible future directions.
             </p>
           <br>
           <div class="content has-text-justified">
 
             <h4 class="title is-5">Ablation Study on the Strategies</h4>
             <p>
-              To highlight our design choices on tackling the challenge, 
+              To highlight our design choices for tackling the challenge, 
               we present an ablation experiment result.
             </p>
             <br>
@@ -322,11 +322,11 @@
 
               <li><b>Internet-scale Dataset</b>
                 may have been a cause for misalignment.
-                We anticipate that this challenge can be mitigated through fine-tuning with the utilization of in-domain expert data with better alginment quality.
+                We anticipate that this challenge can be mitigated through fine-tuning with the utilization of in-domain expert data with better alignment quality.
               </li>
               <br>
               <li><b>Contrastive Objective</b>
-                without considering of temporal precision might have not been appropriate for fine-grained feedback on motion.
+                without considering temporal precision might have not been appropriate for fine-grained feedback on the motion.
                 We believe that a more appealing design of architectural design or objective is demanding. 
               </li>
             </p>
@@ -351,7 +351,7 @@
             <h4 class="title is-5">What does LiFT present on top of
               <a href="https://arxiv.org/abs/2206.08853">MineCLIP</a>?</h4>
             <p>
-              MineDojo proposes set of new tasks brainstormed with LLM and to reward agent using VLM trained on the YouTube knowledge base, 
+              MineDojo proposes a set of new tasks brainstormed with LLM and to reward agents using VLM trained on the YouTube knowledge base, 
               while how to integrate and ground them on an open-ended learning environment is yet explored.
               We focus on closing the loop for adaptation to open-ended environments.
             </p>
@@ -363,14 +363,14 @@
               ELLM proposes a method of using LLM for guiding the pretraining agents for exploration.
               We note that the LiFT agents have access to a text description of the interactable objects available in the environment,
               and this assumption is much simpler yet more practical.
-              Similar to ELLM, a line of work specifically focus on using FMs for Minecraft domain, while none of works integrate pre-trained LLM and VLM for an unsupervised RL system.
+              Similar to ELLM, a line of work specifically focuses on using FMs for Minecraft domain, while none of the works integrate pre-trained LLM and VLM for an unsupervised RL system.
             </p>
             <br>
 
             <h4 class="title is-5">How can LiFT be complementary to
               <a href="https://arxiv.org/abs/2305.16291">Voyager</a>?</h4>
             <p>
-              Voyager introduces a lifelong learning framework that continually explore the world and extend skill set in MineDojo environment using LLM.
+              Voyager introduces a lifelong learning framework that continually explores the world and extends the skill set in MineDojo environment using LLM.
               Voyager uses LLM for code-level planning and refinement based on pre-defined basic skills, 
               while our work aims to acquire visuo-motor policy without access to hand-engineered skills.
             </p>
