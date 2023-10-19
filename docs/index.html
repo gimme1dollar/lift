@@ -150,8 +150,7 @@
           <div class="content has-text-justified">
             <p>
               LiFT automates the acquisition of visuomotor skills with the guidance of foundation models (FMs) for reinforcment learning (RL) agents.
-              Our framework consists of two phases: <b>1) LLM task instruction proposal</b> which obtains a set of semantically meaningful instruction proposals based on current training environment, 
-              and <b>2) VLM-guided policy learning</b> which trains a multi-task policy in the training environment using the obtained instructions.
+              Our framework consists of two phases: <b>1) task instruction proposal </b> with large languge model (LLM) and <b>2) policy learning </b> with the guidance of vision-language model (VLM).
             </p>
           </div>
           <!-- Re-rendering. -->
@@ -165,20 +164,14 @@
           <div class="content has-text-justified">
             <h4 class="title is-5">1. LLM Task Instruction Proposal </h4>
             <p>
-              The first step of our approach is to generate a set of <i>imagined</i> task instructions that are considered to be useful to accomplish future target tasks.
-              To achieve this without human supervision, 
-              the agent initialized in an environment asks an off-the-shelf LLM to generate useful tasks given the description of the available objects in the current environment.
-              The initial state and the proposed text instructions are then used to train a multi-task language-conditioned policy.
+              LLM is used to generate a grounded set of <i>imagined</i> task instructions that are considered to be useful.
+              For example, if the agent is initialized in front of a cow with a bucket in its hand, LLM proposes "to milk a cow".
             </p>
             <br>
             <h4 class="title is-5">2. VLM-Guided Policy Learning </h4>
             <p>
-              Given the proposed set of task instructions and their corresponding initial states, 
-              our goal is to train a multi-task policy that follows the instructions.
-              To accomplish this without expert demonstrations or human reward engineering,
-              we leverage VLMs pre-trained on large, video-language datasets (e.g., YouTube data) 
-              to align videos and corresponding language instructions.
-              We use these VLMs to directly reward the RL agent based on the task instructions and videos of corresponding agent behavior.
+              VLM is leveraged to compute the reward measuring the alignmnet score between the video rollout and corresponding language instructions,
+              for training a multi-task policy that performs semantically meaningful behaviors.
             </p>
 
           </div>
@@ -198,7 +191,6 @@
           <h3 class="title is-3">On Open-ended Environment</h3>
             <p>
               We verify our method in a challenging open-ended MineDojo environment.
-              We train RL agents in training environments and, then, test on a set of new environments with target task descriptions.
               We compare our method with conventional unsupervised RL algorithms with entropy-maximizing objective.
             </p>
           <br>
@@ -207,7 +199,7 @@
             <h4 class="title is-5">Comparison with Baselines</h4>
             <p>
               Our approach achieves outperforming success rates compared to unsupervised RL baselines (APT and APT w/ MineCLIP) 
-              and even comparable with the baseline using human supervision for task proposal (LiFT w/o LLM) with zero-shot evaluation.
+              and even comparable with the baseline using human supervision for task proposal (LiFT w/o LLM) in the zero-shot evaluation.
             </p>
             <br>
             <div class="content has-text-centered">
@@ -222,7 +214,6 @@
 
             <p>
               LiFT succeeds to train a policy equipped with semantically meaningful behavior.
-              (e.g., learning how to shear a sheep with initialization position near a sheep with a shear.)
               On the other hand, the success rates of unsupervised RL baselines are even less than the VPT baseline.
             </p>
           </div>
@@ -237,11 +228,14 @@
           </div>
           <br />
             <p>
+              <!--
               The trajectories from LiFT agent exhibit efficient approaching behaviors toward the target, 
               compared to the undirected random trajectories from APT agents.
-              While the APT agents try maximizing the diversity as shown with the highest scores on each reward metric, 
-              the learned behavior with conventional unsupervised RL algorithm is yet semantically meaningful from that 
-              the agents just wander around a wide range of regions or gaze on diverse entities without following the task description.
+              -->
+              LiFT agent exhibit efficient trajectories toward the target entity.
+              APT agents, however, do not show semantically meaningful but 
+              just wander around a wide range of regions or gaze on diverse entities,
+              despite it tries maximizing the objective of diversity.
             </p>
           <br />
 
@@ -265,7 +259,7 @@
 
             <h4 class="title is-5">Ablation Study on the Strategies</h4>
             <p>
-              To highlight our design choices on tackling the challenge as well as future directions, 
+              To highlight our design choices on tackling the challenge, 
               we present an ablation experiment result.
             </p>
             <br>
@@ -280,31 +274,26 @@
             </div>
 
             <ol>
+              <li><b>Reward Definition.</b>
+                <br>
+                We conclude that the naive application of softmax reward does not efficiently improve the performance.
+               </br>
               <br>
+              </li>
               <li><b>Reward Stabilization.</b>
                 <br>
                 We empirically observe that the computed reward signal typically exhibits high variance, 
                 likely coming from noise induced by visual variations within the observed agent trajectories.
-                Thus, we adapt the reward stabilization technique of both smoothing and clipping to mitigate learning instability.
                 </br>
               </li>
               <br>
               <li><b>Policy Initialization.</b>
                 <br>
                 A randomly initialized policy is not able to learn meaningful behavior 
-                due to the complexity of MineDojo environment and the imperfect reward quality from VLM.
-                This learning failure primarily stems from the challenge of attempting to learn long-horizon and high-dimensional Minecraft skills entirely from scratch.
+                due to the high complexity of MineDojo environment and the imperfect reward quality from VLM.
                 </br>
               </li>
               <br>
-              <li><b>Reward Definition.</b>
-                <br>
-                We explore definitions for the reward function, 
-                aiming at assessing the potential of relative normalization through softmax rewards for reward stabilization.
-                Yet, we conclude that the naive application of softmax reward does not efficiently improve the evaluation result,
-                as we obtain a higher performance score with reward defined with cosine similarity.
-               </br>
-              </li>
             </ol>
 
             <br>
@@ -324,26 +313,21 @@
             <br>
 
             <p>
-              VLM computed rewards in the figure above illustrate that 
               VLM rewards are generally high for behavior that is somewhat related to the task instructions 
               but often fall short of providing the highest rewards for the most success-critical behavior.
-              We suspect that this imperfection arises from the video-language alignment issue with the current off-the-shelf VLM.
             </p>
 
             <p>
-              This work has attempted to alleviate the issues by using several strategies discussed above, 
-              yet we leave improving VLM reward for a more diverse set of tasks, including complex and delicate tasks, as future work with possible directions below:
+              We leave improving VLM reward for future work with possible directions below:
 
               <li><b>Internet-scale Dataset</b>
                 may have been a cause for misalignment.
-                Many of Youtube video data used for training MineCLIP have issues of misalignment with the caption of the vocal used as the text label.
                 We anticipate that this challenge can be mitigated through fine-tuning with the utilization of in-domain expert data with better alginment quality.
               </li>
               <br>
               <li><b>Contrastive Objective</b>
                 without considering of temporal precision might have not been appropriate for fine-grained feedback on motion.
-                The <a href="">similar observation</a> has been reported with video-language alignment score of R3M on robot manipulation tasks. 
-                We believe that a more appealing design of architectural design or objective  more suitable for the fine-grained temporal understanding for video-language alignment is demanding. 
+                We believe that a more appealing design of architectural design or objective is demanding. 
               </li>
             </p>
 
