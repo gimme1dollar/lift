@@ -149,8 +149,8 @@
       
           <div class="content has-text-justified">
             <p>
-              LiFT automates the acquisition of visuomotor skills with the guidance of foundation models (FMs) for reinforcement learning (RL) agents. 
-              Our framework consists of two phases: <b>1) task instruction proposal</b> with the large language model (LLM) and <b>2) policy learning</b> with the guidance of the vision-language model (VLM).  
+              LiFT automates the acquisition of semantically meaningful visuomotor skills with the guidance of foundation models (FMs) for reinforcement learning (RL) agents. 
+              Our framework consists of two phases: <b>1) task instruction proposal</b> with the large language model (LLM) and <b>2) multi-task language-conditioned policy learning</b> with the guidance of the vision-language model (VLM).  
             </p>
           </div>
           <!-- Re-rendering. -->
@@ -196,6 +196,45 @@
           <br>
 
           <div class="content has-text-justified">
+            <h4 class="title is-5">Success Demonstrations</h4>
+            <p> Below images showcase exemplary skill performances by our agents.</p>
+            <br>
+            <div class="content has-text-centered">
+              <!--  2 gif images place in one row -->
+              <div class="columns is-centered">
+                <div class="column">
+                  <img src="./static/images/demo_1.gif" width="250" style='padding-left:10px;' class="interpolation-image"
+                    alt="Interpolate start reference image.">
+                  </img>
+                  <br />
+                  <p> "Shear a sheep" </p>
+                </div>
+
+                <div class="column">
+                  <img src="./static/images/demo_2.gif" width="250" style='padding-left:10px;' class="interpolation-image"
+                    alt="Interpolate start reference image.">
+                  </img>
+                  <p> "Collect logs" </p>
+                </div>
+
+                <div class="column">
+                  <img src="./static/images/demo_3.gif" width="250" style='padding-left:10px;' class="interpolation-image"
+                    alt="Interpolate start reference image.">
+                  </img>
+                  <p> "Attack a sheep" </p>
+                </div>
+
+                <div class="column">
+                  <img src="./static/images/demo_4.gif" width="250" style='padding-left:10px;' class="interpolation-image"
+                    alt="Interpolate start reference image.">
+                  </img>
+                  <p> "Combat a zombie" </p>
+                </div>
+
+              </div>
+            </div>
+            <br>
+
             <h4 class="title is-5">Comparison with Baselines</h4>
             <p>
               Our approach achieves outperforming success rates compared to unsupervised RL baselines (APT and APT w/ MineCLIP) 
@@ -211,6 +250,7 @@
                   <br/>
               </div>
             </div>
+            <br>
 
             <p>
               LiFT succeeds in training a policy equipped with semantically meaningful behavior.
