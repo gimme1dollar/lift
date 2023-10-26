@@ -197,7 +197,7 @@
 
           <div class="content has-text-justified">
             <h4 class="title is-5">Success Demonstrations</h4>
-            <p> Below images showcase exemplary skill performances by our agents.</p>
+            <p> Below images showcase exemplary skill performances by our agent.</p>
             <br>
             <div class="content has-text-centered">
               <!--  2 gif images place in one row -->
@@ -238,7 +238,7 @@
             <h4 class="title is-5">Comparison with Baselines</h4>
             <p>
               Our approach achieves outperforming success rates compared to unsupervised RL baselines (APT and APT w/ MineCLIP) 
-              and is even comparable with the baseline using human supervision for task proposal (LiFT w/o LLM) in the zero-shot evaluation.
+              and is even comparable with the baseline using oracle task proposal annotated by humans (LiFT w/ Oracle) in the zero-shot evaluation.
             </p>
             <br>
             <div class="content has-text-centered">
@@ -289,15 +289,35 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column is-full-width">
-          <h2 class="title is-3">Toward Scalable Learning</h2>
+          <h2 class="title is-3">For Scalable Learning</h2>
             <p>
-              We examine the effects of each strategy used in our experiment.
-              We, then, analyze the limitations of current FMs used in our experiment for scaling learning and suggest possible future directions.
+              We analyze the limitations of current FMs used in our experiment for scalable learning.
+              We, then, examine the effects of each strategy used in our experiment.
             </p>
           <br>
-          <div class="content has-text-justified">
 
-            <h4 class="title is-5">Ablation Study on the Strategies</h4>
+          <div class="content has-text-justified">
+            <h4 class="title is-5">VLM Reward Quality</h4>
+            
+            <br>
+            <div class="content has-text-centered">
+              <!--  2 gif images place in one row -->
+              <div class="columns is-centered">
+                  <img src="./static/images/vlm_quality.png" width="750" class="interpolation-image"
+                    alt="Interpolate start reference image.">
+                  </img>
+                  <br/>
+              </div>
+            </div>
+
+            <p>
+              VLM rewards are generally high for behavior that is somewhat related to the task instructions 
+              but often fall short of providing the highest rewards for the most success-critical behavior.
+            </p>
+
+            <br>
+
+            <h4 class="title is-5">Ablation Study on Strategies</h4>
             <p>
               To highlight our design choices for tackling the challenge, 
               we present an ablation experiment result.
@@ -307,28 +327,31 @@
             <div class="content has-text-centered">
               <!--  2 gif images place in one row -->
               <div class="columns is-centered">
-                  <img src="./static/images/ablation_study.png" width="300" class="interpolation-image"
+                  <img src="./static/images/ablation_study.png" width="400" class="interpolation-image"
                     alt="Interpolate start reference image.">
                   </img>
               </div>
             </div>
 
             <ol>
-              <li><b>Reward Definition.</b>
+              <li><b>Reward Type</b>
                 <br>
+                We experiment on two types of reward definitions: cosine similarity and softmax.
                 We conclude that the naive application of softmax reward does not efficiently improve the performance.
                </br>
               <br>
               </li>
-              <li><b>Reward Stabilization.</b>
+              <li><b>Reward Stabilization</b>
                 <br>
+                We stabilize the VLM reward signal with smoothing.
                 We empirically observe that the computed reward signal typically exhibits high variance, 
                 likely coming from noise induced by visual variations within the observed agent trajectories.
                 </br>
               </li>
               <br>
-              <li><b>Policy Initialization.</b>
+              <li><b>Policy Initialization</b>
                 <br>
+                We initialize our policy with VPT.
                 A randomly initialized policy is not able to learn meaningful behavior 
                 due to the high complexity of MineDojo environment and the imperfect reward quality from VLM.
                 </br>
@@ -336,85 +359,6 @@
               <br>
             </ol>
 
-            <br>
-
-            <h4 class="title is-5">Diagnosis on VLM Reward Quality</h4>
-            
-            <br>
-            <div class="content has-text-centered">
-              <!--  2 gif images place in one row -->
-              <div class="columns is-centered">
-                  <img src="./static/images/vlm_quality.png" width="800" class="interpolation-image"
-                    alt="Interpolate start reference image.">
-                  </img>
-                  <br/>
-              </div>
-            </div>
-            <br>
-
-            <p>
-              VLM rewards are generally high for behavior that is somewhat related to the task instructions 
-              but often fall short of providing the highest rewards for the most success-critical behavior.
-            </p>
-
-            <p>
-              We leave improving VLM reward for future work with possible directions below:
-
-              <li><b>Internet-scale Dataset</b>
-                may have been a cause for misalignment.
-                We anticipate that this challenge can be mitigated through fine-tuning with the utilization of in-domain expert data with better alignment quality.
-              </li>
-              <br>
-              <li><b>Contrastive Objective</b>
-                without considering temporal precision might have not been appropriate for fine-grained feedback on the motion.
-                We believe that a more appealing design of architectural design or objective is demanding. 
-              </li>
-            </p>
-
-            <br>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <hr>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column is-full-width">
-          <h2 class="title is-3">Q&A<br>
-          </h2>
-          <div class="content has-text-justified">
-
-            <h4 class="title is-5">What does LiFT present on top of
-              <a href="https://arxiv.org/abs/2206.08853">MineCLIP</a>?</h4>
-            <p>
-              MineDojo proposes a set of new tasks brainstormed with LLM and to reward agents using VLM trained on the YouTube knowledge base, 
-              while how to integrate and ground them on an open-ended learning environment is yet explored.
-              We focus on closing the loop for adaptation to open-ended environments.
-            </p>
-            <br>
-
-            <h4 class="title is-5">How is LiFT different from
-              <a href="https://arxiv.org/abs/2302.06692">ELLM</a>?</h4>
-            <p>
-              ELLM proposes a method of using LLM for guiding the pretraining agents for exploration.
-              We note that the LiFT agents have access to a text description of the interactable objects available in the environment,
-              and this assumption is much simpler yet more practical.
-              Similar to ELLM, a line of work specifically focuses on using FMs for Minecraft domain, while none of the works integrate pre-trained LLM and VLM for an unsupervised RL system.
-            </p>
-            <br>
-
-            <h4 class="title is-5">How can LiFT be complementary to
-              <a href="https://arxiv.org/abs/2305.16291">Voyager</a>?</h4>
-            <p>
-              Voyager introduces a lifelong learning framework that continually explores the world and extends the skill set in MineDojo environment using LLM.
-              Voyager uses LLM for code-level planning and refinement based on pre-defined basic skills, 
-              while our work aims to acquire visuo-motor policy without access to hand-engineered skills.
-            </p>
-            <br>
 
           </div>
         </div>
