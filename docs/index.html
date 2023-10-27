@@ -48,24 +48,30 @@
             <h1 class="title is-1 publication-title">LiFT: Unsupervised Reinforcement Learning with Foundation Models as Teachers</h1>
             <div class="is-size-6 publication-authors">
               <span class="author-block">
-                <a href="Taewooknam.notion.site/Taewook-Nam-ae8a9ccb9ca54622b03b3e53541d6241">Taewook Nam</a><sup>1*</sup>,</span>
+                <a href="Taewooknam.notion.site/Taewook-Nam-ae8a9ccb9ca54622b03b3e53541d6241">Taewook Nam</a><sup>1*</sup>
+              </span>
               <span class="author-block">
-                <a href="https://gimme1dollar.github.io/">Juyong Lee</a><sup>1*</sup>,</span>
+                <a href="https://gimme1dollar.github.io/">Juyong Lee</a><sup>1*</sup>
+              </span>
               <span class="author-block">
-                <a href="https://jesbu1.github.io/">Jesse Zhang</a><sup>2</sup>,</span>
+                <a href="https://jesbu1.github.io/">Jesse Zhang</a><sup>2</sup>
+              </span>
                 <span class="author-block">
-                  <a href="http://www.sungjuhwang.com/">Sung Ju Hwang</a><sup>1</sup>
+                  <a href="http://www.sungjuhwang.com/">Sung Ju Hwang</a><sup>1</sup> 
+                </span>
                 <span class="author-block">
                   <a href="https://clvrai.com/web_lim/">Joseph J. Lim</a><sup>1</sup>
+                </span>
                 <span class="author-block">
-                  <a href="https://kpertsch.github.io/">Karl Pertsch</a><sup>3</sup>,</span>
+                  <a href="https://kpertsch.github.io/">Karl Pertsch</a><sup>3,4</sup>
                 </span>
             </div>
 
             <div class="is-size-6 publication-authors">
               <span class="author-block"><sup>1</sup>KAIST </span>
               <span class="author-block"><sup>2</sup>University of Southern California </span>
-              <span class="author-block"><sup>3</sup>Stanford </span>
+              <span class="author-block"><sup>3</sup>University of California, Berkeley </span>
+              <span class="author-block"><sup>4</sup>Stanford </span>
             </div>
 
             <div class="is-size-6 publication-authors">
@@ -122,7 +128,7 @@
         <div class="column is-four-fifths">
           <div class="content has-text-justified">
           <p>
-            We propose <b>LiFT</b> (unsupervised <b>L</b>earning w<b>i</b>th <b>F</b>oundation model <b>T</b>eachers) framework that leverages foundation models as teachers, guiding a reinforcement learning agent to acquire semantically meaningful behavior without human intervention. 
+            We propose <b>LiFT</b> (unsupervised <b>L</b>earning w<b>i</b>th <b>F</b>oundation model <b>T</b>eachers) framework that leverages foundation models as teachers, guiding a reinforcement learning agent to acquire semantically meaningful behavior without human feedback. 
           </p>
           </div>
         </div>
@@ -165,7 +171,7 @@
             <h4 class="title is-5">1. LLM Task Instruction Proposal </h4>
             <p>
               LLM is used to generate a grounded set of useful <i>imagined</i> task instructions.
-              For example, if the agent is in front of a cow with a bucket in its hand, LLM proposes "to milk a cow".
+              For example, if the agent is in front of a cow with a bucket in its hand, LLM can propose a task of "milk a cow".
             </p>
             <br>
             <h4 class="title is-5">2. VLM-Guided Policy Learning </h4>
@@ -261,21 +267,31 @@
           <div class="content has-text-justified">
             <h4 class="title is-5">Behavior Analysis</h4>
           </div>
-          <div class="columns is-centered">
-            <img src="./static/images/behavior_analysis.png"  width="800" class="interpolation-image" style="width:360"
-              alt="Interpolate start reference image.">
-            </img>
+          
+          <div class="content has-text-centered">
+            <div class="columns is-centered">
+              <!--img src="./static/images/behavior_analysis.png"  width="800" class="interpolation-image" style="width:360" alt="Interpolate start reference image."> </img-->
+                <div>
+                  <img src="./static/images/analysis_trajectory.png" width="370">
+                  </img>
+                  <br />
+                  <p> (a) Trajectories in top view </p>
+                </div>
+                <div>
+                  <img src="./static/images/analysis_diversity.png" width="470">
+                  </img>
+                  <br />
+                  <p> (b) Normalized reward scores </p>
+                </div>
+            </div>
           </div>
           <br />
             <p>
-              <!--
-              The trajectories from LiFT agent exhibit efficient approaching behaviors toward the target, 
-              compared to the undirected random trajectories from APT agents.
-              -->
-              LiFT agents exhibit efficient trajectories toward the target entity.
+              LiFT agents efficiently interact with the target entity, 
+              spawned in the green box region in the figure.
               APT agents, however, do not show semantic meaning but 
-              just wander around a wide range of regions or gaze on diverse entities,
-              despite trying maximizing the objective of diversity.
+              just wander around a wide range of regions
+              to maxime the objective of diversity.
             </p>
           <br />
 
@@ -292,73 +308,61 @@
           <h2 class="title is-3">For Scalable Learning</h2>
             <p>
               We analyze the limitations of current FMs used in our experiment for scalable learning.
-              We, then, examine the effects of each strategy used in our experiment.
+              To highlight our design choices for tackling the challenge, we present an ablation experiment result.
             </p>
           <br>
 
-          <div class="content has-text-justified">
-            <h4 class="title is-5">VLM Reward Quality</h4>
-            
-            <br>
             <div class="content has-text-centered">
               <!--  2 gif images place in one row -->
               <div class="columns is-centered">
-                  <img src="./static/images/vlm_quality.png" width="750" class="interpolation-image"
-                    alt="Interpolate start reference image.">
-                  </img>
-                  <br/>
-              </div>
-            </div>
-
-            <p>
-              VLM rewards are generally high for behavior that is somewhat related to the task instructions 
-              but often fall short of providing the highest rewards for the most success-critical behavior.
-            </p>
-
-            <br>
-
-            <h4 class="title is-5">Ablation Study on Strategies</h4>
-            <p>
-              To highlight our design choices for tackling the challenge, 
-              we present an ablation experiment result.
-            </p>
-            <br>
-
-            <div class="content has-text-centered">
-              <!--  2 gif images place in one row -->
-              <div class="columns is-centered">
+                <div>
                   <img src="./static/images/ablation_study.png" width="400" class="interpolation-image"
                     alt="Interpolate start reference image.">
                   </img>
+                  <br />
+                </div>
               </div>
             </div>
 
-            <ol>
-              <li><b>Reward Type</b>
-                <br>
-                We experiment on two types of reward definitions: cosine similarity and softmax.
-                We conclude that the naive application of softmax reward does not efficiently improve the performance.
-               </br>
-              <br>
-              </li>
-              <li><b>Reward Stabilization</b>
-                <br>
-                We stabilize the VLM reward signal with smoothing.
-                We empirically observe that the computed reward signal typically exhibits high variance, 
-                likely coming from noise induced by visual variations within the observed agent trajectories.
-                </br>
-              </li>
-              <br>
-              <li><b>Policy Initialization</b>
-                <br>
-                We initialize our policy with VPT.
-                A randomly initialized policy is not able to learn meaningful behavior 
-                due to the high complexity of MineDojo environment and the imperfect reward quality from VLM.
-                </br>
-              </li>
-              <br>
-            </ol>
+          <div class="content has-text-justified">
 
+            <h4 class="title is-5">Reward Stabilization</h4>
+            <p>
+              The comparison between the first and second rows in the table shows the effect of reward stabiliziation.
+              The below graphs show the difference between the raw VLM reward signals and the processsed version.
+            </p>
+
+          <div class="content has-text-centered">
+            <div class="columns is-centered">
+              <!--img src="./static/images/behavior_analysis.png"  width="800" class="interpolation-image" style="width:360" alt="Interpolate start reference image."> </img-->
+                <div>
+                  <img src="./static/images/vlm_quality_a.png" width="375">
+                  </img>
+                  <br />
+                  <p> (a) Shear a sheep and obtain wools </p>
+                </div>
+                <div>
+                  <img src="./static/images/vlm_quality_b.png" width="375">
+                  </img>
+                  <br />
+                  <p> (b) Craft planks </p>
+                </div>
+            </div>
+          </div>
+
+            <h4 class="title is-5">Policy Initialization</h4>
+            <p>
+              The comparison between the first and third rows in the table shows the effect of policy initialization.
+              A randomly initialized policy can not learn properly, mainly due to the high complexity of MineDojo environment and the imperfect VLM rewards.
+            </p>
+            <br>
+              
+            <h4 class="title is-5">Reward Type</h4>
+            <p>
+              We additionally experiment on two types of reward definitions: cosine similarity and softmax.
+              We conclude that the naive application of softmax reward does not efficiently improve the performance.
+            </p>
+            <br>
 
           </div>
         </div>
