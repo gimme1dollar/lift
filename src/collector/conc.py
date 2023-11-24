@@ -1,5 +1,5 @@
-import queue
 import threading
+import queue
 
 from simpl.collector import BaseWorker
 

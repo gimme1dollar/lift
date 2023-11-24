@@ -7,6 +7,23 @@ from simpl.nn import ToDeviceMixin
 
 from .ppo import BatchEpisode
 
+class MTBatchEpisode(BatchEpisode):
+    def __init__(self, episodes, max_context, context_l):
+        super().__init__(episodes, max_context, context_l)
+        
+        self.task_embeds = torch.cat([
+            episode.task_embed[None, :].expand(len(episode), -1) for episode in episodes
+        ])
+        self.all_task_embeds = torch.cat([
+            episode.task_embed[None, :].expand(len(episode)+1, -1) for episode in episodes
+        ])
+    
+    def __getitem__(self, idx):
+        ret = super().__getitem__(idx)
+        ret.task_embeds = self.task_embeds[idx]
+        return ret
+    
+
 class MTPPO(ToDeviceMixin, nn.Module):
     def __init__(self, policy, fixed_policy, clip, vf_loss_scale,
                  gamma=0.99, gae_lambda=0.95, normalize_gae=True,
@@ -31,9 +48,9 @@ class MTPPO(ToDeviceMixin, nn.Module):
         self.policy.to(device)
         self.fixed_policy.to(device)
         return super().to(device)
-
-    def step(self, episodes, max_context, context_l, n_max_epoch, batch_size, target_kl=None, process_batch_size=None):
-        full_batch = BatchEpisode(episodes, max_context, context_l)
+    
+    def prepare_batch(self, episodes, max_context, context_l, process_batch_size):
+        full_batch = MTBatchEpisode(episodes, max_context, context_l)
         
         # compute initial log probs & advantagnes
         with torch.cuda.amp.autocast(), torch.no_grad():
@@ -49,22 +66,34 @@ class MTPPO(ToDeviceMixin, nn.Module):
                     k: v.split(process_batch_size)
                     for k, v in full_batch.all_actions.items()
                 }
-                for chunk_i, (all_states_chunk, all_firsts_chunk, all_last_indices_chunk) in enumerate(zip(
+                all_action_masks_chunks = {
+                    k: v.split(process_batch_size)
+                    for k, v in full_batch.all_action_masks.items()
+                }
+                for chunk_i, (all_states_chunk, all_firsts_chunk, all_last_indices_chunk, all_task_embeds_chunk) in enumerate(zip(
                     full_batch.all_stacked_states.split(process_batch_size),
                     full_batch.all_firsts.split(process_batch_size),
-                    full_batch.all_last_indices.split(process_batch_size)
+                    full_batch.all_last_indices.split(process_batch_size),
+                    full_batch.all_task_embeds.split(process_batch_size)
                 )):
                     all_states_chunk = all_states_chunk.to(self.device)
                     all_firsts_chunk = all_firsts_chunk.to(self.device)
                     all_last_indices_chunk = all_last_indices_chunk.to(self.device)
+                    all_task_embeds_chunk = all_task_embeds_chunk.to(self.device)
                     
                     all_actions_chunk = {
                         k: v[chunk_i].to(self.device)
                         for k, v in all_actions_chunks.items()
                     }
+                    all_action_masks_chunk = {
+                        k: v[chunk_i].to(self.device)
+                        for k, v in all_action_masks_chunks.items()
+                    }
                     
-                    all_dists, all_vs = self.policy.dist_with_v(all_states_chunk, all_firsts_chunk, all_last_indices_chunk)
-                    all_init_log_probs = all_dists.log_prob(all_actions_chunk)
+                    all_dists, all_vs = self.policy.dist_with_v(all_states_chunk, all_action_masks_chunk, all_firsts_chunk, all_last_indices_chunk, all_task_embeds_chunk)
+                    all_hierarchy_masks_chunk = self.policy.process_action_hierarchy_mask(all_actions_chunk, all_action_masks_chunk)
+                    all_hierarchy_masks_chunk = {k: v.to(self.device) for k, v in all_hierarchy_masks_chunk.items()}
+                    all_init_log_probs = all_dists.log_prob(all_actions_chunk, all_hierarchy_masks_chunk)
     
                     all_init_log_probs_chunks.append(all_init_log_probs)
                     all_vs_chunks.append(all_vs)
@@ -75,7 +104,10 @@ class MTPPO(ToDeviceMixin, nn.Module):
             full_batch.init_log_probs = init_log_probs
             full_batch.compute_gae(all_vs, self.gamma, self.gae_lambda, process_batch_size)
         
-        # ppo epoch
+        return full_batch
+        
+    def step(self, episodes, max_context, context_l, n_max_epoch, batch_size, target_kl=None, process_batch_size=None):
+        full_batch = self.prepare_batch(episodes, max_context, context_l, process_batch_size)
         loader = torch_data.DataLoader(
             full_batch, batch_size=None,
             sampler=torch_data.BatchSampler(
@@ -83,6 +115,7 @@ class MTPPO(ToDeviceMixin, nn.Module):
             ),
         )
         step_i = 0
+        self.optim.zero_grad(set_to_none=True)
         for _ in range(n_max_epoch):
             for batch in loader:
                 for k, v in batch.__dict__.items():
@@ -95,17 +128,22 @@ class MTPPO(ToDeviceMixin, nn.Module):
                     step_i += 1
 
                     # optimize this
-                    dists, vs = self.policy.dist_with_v(batch.states, batch.firsts, batch.last_indices)
+                    dists, vs = self.policy.dist_with_v(batch.states, batch.action_masks, batch.firsts, batch.last_indices, batch.task_embeds)
+                    with torch.no_grad():
+                        fixed_dists = self.fixed_policy.dist(batch.states, batch.action_masks, batch.firsts, batch.last_indices)
+                    del batch.states
 
                     v_target = batch.gaes + batch.values
                     vf_loss = (vs - v_target).pow(2).mean(0)
 
                     if self.normalize_gae:
-                        advs = (batch.gaes - batch.gaes.mean()) / batch.gaes.std()
+                        advs = (batch.gaes - batch.gaes.mean()) / (batch.gaes.std() + 1e-6)
                     else:
                         advs = batch.gaes
 
-                    log_probs = dists.log_prob(batch.actions)
+                    hierarchy_masks = self.policy.process_action_hierarchy_mask(batch.actions, batch.action_masks)
+                    hierarchy_masks = {k: v.to(self.device) for k, v in hierarchy_masks.items()}
+                    log_probs = dists.log_prob(batch.actions, hierarchy_masks)
                     log_ratios = log_probs - batch.init_log_probs
                     ratios = log_ratios.exp()
 
@@ -114,17 +152,32 @@ class MTPPO(ToDeviceMixin, nn.Module):
                     policy_loss_2 = advs * ratios.clamp(1 - self.clip, 1 + self.clip)
                     policy_loss = -torch.min(policy_loss_1, policy_loss_2).mean(0)
 
-                    with torch.no_grad():
-                        fixed_dists = self.fixed_policy.dist(batch.states, batch.firsts, batch.last_indices)
-                    policy_reg_loss = torch_dist.kl_divergence(dists, fixed_dists).mean(0)
+                    kls = []
+                    for k in dists.categorical_dict:
+                        if k != 'craft_items':
+                            kl = torch_dist.kl_divergence(
+                                dists.categorical_dict[k],
+                                fixed_dists.categorical_dict[k]
+                            ).mean(0)
+                            kls.append(kl)
+                        else:
+                            if hierarchy_masks['craft_items'].sum() > 0:
+                                uniform = torch_dist.Categorical(
+                                    probs=batch.action_masks['craft_items'][hierarchy_masks['craft_items']]
+                                )
+                                masked_dict = torch_dist.Categorical(
+                                    probs=dists.categorical_dict['craft_items'].probs[hierarchy_masks['craft_items']]
+                                )
+                                kl = torch_dist.kl_divergence(masked_dict, uniform).mean(0)
+                                kls.append(kl)
+                    policy_reg_loss = torch.stack(kls).mean(0)
 
                     loss = policy_loss + self.vf_loss_scale*vf_loss + self.policy_reg_scale*policy_reg_loss
-
-                self.optim.zero_grad(set_to_none=True)
 
                 self.scaler.scale(loss).backward()
                 self.scaler.step(self.optim)
                 self.scaler.update()
+                self.optim.zero_grad(set_to_none=True)
         
                 with torch.no_grad():
                     approx_kl_div = ((ratios - 1) - log_ratios).mean(0).cpu().numpy()

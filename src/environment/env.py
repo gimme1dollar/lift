@@ -1,12 +1,11 @@
 import gym
 import minedojo
-import numpy as np
-
-from omegaconf import OmegaConf
-
 from minedojo.sim.wrappers.ar_nn.ar_masks_wrapper import ARMasksWrapper
 from minedojo.tasks import _resource_file_path, _parse_inventory_dict, MetaTaskName2Class
+import numpy as np
+from omegaconf import OmegaConf
 
+# current set
 eval_task_ids = [
     'harvest_milk_with_empty_bucket_and_cow',
     'harvest_wool_with_shears_and_sheep',
@@ -23,7 +22,7 @@ eval_task_specs = {
     for eval_task_id in eval_task_ids
 }
 
-task_random = np.random.RandomState(seed=42)
+task_random = np.random.RandomState(seed=3)
 world_seeds = task_random.randint(99999, size=len(eval_task_ids))
 seeds = task_random.randint(99999, size=len(eval_task_ids))
 

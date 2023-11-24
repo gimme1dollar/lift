@@ -1,12 +1,9 @@
 import minedojo
 import numpy as np
-
 import torch
-import torch.nn.functional as F
 import torch.distributions as torch_dist
-
+import torch.nn.functional as F
 from simpl.rl.policy import StochasticNNPolicy
-
 from vpt.agent import resize_image, AGENT_RESOLUTION
 from minedojo.sim.mc_meta.mc import ALL_CRAFT_SMELT_ITEMS
 
@@ -58,7 +55,10 @@ class VPTPolicy(StochasticNNPolicy):
         self.minerl_agent = minerl_agent
         self.vpt_policy = minerl_agent.policy  # to register module
 
-        # read 
+        self.context_l = self.minerl_agent.context_l
+        self.n_context_repeat = self.minerl_agent.n_context_repeat
+
+        # vpt to MineDojo action space conversion
         sim = minedojo.sim.MineDojoSim(image_size=[10, 10], event_level_control=event_level_control)
         self.actionables = sim._sim_spec.actionables
 
@@ -118,8 +118,8 @@ class VPTPolicy(StochasticNNPolicy):
         return batch_seq_h
 
     def dist_with_v(self, batch_seq_processed_state, batch_action_mask, batch_firsts, batch_last_idx):
-        context_l = self.minerl_agent.policy.net.recurrent_layer.blocks[0].r.maxlen
-        n_context = batch_seq_processed_state.shape[1] // context_l
+        context_l = self.context_l
+        n_context = self.n_context_repeat
 
         batch_seq_h = self.forward_recurrent(batch_seq_processed_state, batch_firsts, context_l, n_context)
         batch_h = batch_seq_h.gather(1, batch_last_idx[:, None, None].expand(-1, -1, batch_seq_h.shape[-1]))[:, 0, :]
@@ -138,8 +138,8 @@ class VPTPolicy(StochasticNNPolicy):
         return batch_dist, batch_v
 
     def dist(self, batch_seq_processed_state, batch_action_mask, batch_firsts, batch_last_idx):
-        context_l = self.minerl_agent.policy.net.recurrent_layer.blocks[0].r.maxlen
-        n_context = batch_seq_processed_state.shape[1] // context_l
+        context_l = self.context_l
+        n_context = self.n_context_repeat
 
         batch_seq_h = self.forward_recurrent(batch_seq_processed_state, batch_firsts, context_l, n_context)
         batch_h = batch_seq_h.gather(1, batch_last_idx[:, None, None].expand(-1, -1, batch_seq_h.shape[-1]))[:, 0, :]

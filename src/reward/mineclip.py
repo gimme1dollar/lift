@@ -1,9 +1,9 @@
 import numpy as np
-
 import torch
 import torch.nn as nn
 
 import mineclip
+from simpl.nn import ToDeviceMixin
 
 cfg = {
     'arch': 'vit_base_p16_fz.v2.t2',
@@ -17,7 +17,7 @@ n_stack = 16
 hidden_dim = cfg['hidden_dim']
 
 
-class MineCLIP(nn.Module):
+class MineCLIP(ToDeviceMixin, nn.Module):
     def __init__(self, model_path):
         super().__init__()
         
@@ -26,7 +26,7 @@ class MineCLIP(nn.Module):
         
         self.mineclip_model = mineclip_model
         
-    def embed_text(self, texts):
+    def embed_text(self, texts, normalize=False):
         """ 
         list of python strings
         Not normalized yet
@@ -38,9 +38,13 @@ class MineCLIP(nn.Module):
         else:
             res = torch.sigmoid(self.mineclip_model.reward_head.text_residual_weight)
             text_embeds = res * text_embeds + (1.0 - res) * self.mineclip_model.reward_head.text_adapter(text_embeds)
+
+        if normalize == True:
+            text_embeds /= text_embeds.norm(p=2, dim=-1, keepdim=True)
+    
         return text_embeds
     
-    def embed_video(self, seq_img, n_pad=n_stack-2, process_batch_size=None):
+    def embed_video(self, seq_img, n_pad=n_stack-2, process_batch_size=None, normalize=False):
         """ 
         Don't support batch computing
         input : (T, 3, 256, 160) 0~255 image
@@ -79,6 +83,9 @@ class MineCLIP(nn.Module):
             res = torch.sigmoid(self.mineclip_model.reward_head.video_residual_weight)
             seq_video_embed = res * seq_video_embed + (1.0 - res) * self.mineclip_model.reward_head.video_adapter(seq_video_embed)
         
+        if normalize == True:
+            text_embeds /= text_embeds.norm(p=2, dim=-1, keepdim=True)
+        
         return seq_video_embed
     
     def compute_reward(self, task_embed, video_embed, temperature_scale=1., normalize_embed=True):
@@ -89,8 +96,7 @@ class MineCLIP(nn.Module):
             video_embed /= video_embed.norm(p=2, dim=-1, keepdim=True)
         
         return (video_embed @ task_embed / temperature).cpu().numpy()
-
-
+    
 def soften(rewards, window_size):
     return np.array([
         rewards[max(0, t+1-window_size):t+1].mean()

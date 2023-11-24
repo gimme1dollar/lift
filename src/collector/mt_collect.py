@@ -1,12 +1,13 @@
 import time
-import numpy as np
-from PIL import Image
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 
-from simpl.collector import BaseWorker
+from PIL import Image
+
 from minedojo.sim.wrappers import FastResetWrapper
+from simpl.collector import BaseWorker
 
 
 class MTEpisode:

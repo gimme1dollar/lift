@@ -1,11 +1,10 @@
 import numpy as np
-import scipy.signal
-from types import SimpleNamespace
-
 import torch
+import torch.distributions as torch_dist
 import torch.nn as nn
 import torch.utils.data as torch_data
-import torch.distributions as torch_dist
+import scipy.signal
+from types import SimpleNamespace
 
 from simpl.nn import ToDeviceMixin
 
