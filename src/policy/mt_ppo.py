@@ -1,4 +1,11 @@
+import torch
+import torch.distributions as torch_dist
+import torch.nn as nn
+import torch.utils.data as torch_data
 
+from simpl.nn import ToDeviceMixin
+
+from .ppo import BatchEpisode
 
 class MTPPO(ToDeviceMixin, nn.Module):
     def __init__(self, policy, fixed_policy, clip, vf_loss_scale,

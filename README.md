@@ -46,6 +46,18 @@ pip install git+https://github.com/minerllabs/minerl # takes some times
 # fix self._shape = () for line 205 in minerl/herobraine/hero/spaces.py file 
 ```
 
+### MineCLIP
+```
+git clone https://github.com/MineDojo/MineCLIP && cd MineCLIP
+# !! comment out minedojo in requirements.txt
+pip install -e .
+```
+```
+# https://github.com/MineDojo/MineCLIP
+# Download attn.pth in ./asset/mineclip/
+```
+
+
 ### VPT
 ```
 git clone https://github.com/namsan96/Video-Pre-Training && cd Video-Pre-Training
@@ -54,8 +66,8 @@ pip install -e .
 
 ```
 # https://github.com/openai/Video-Pre-Training
-# Download bc-house-3x.weights in ./asset/vpt
-# Download foundation-model-3x.model in ./asset/vpt
+# Download bc-house-3x.weights in ./asset/vpt/
+# Download foundation-model-3x.model in ./asset/vpt/
 ```
 
 ### SiMPL
