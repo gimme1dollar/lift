@@ -12,6 +12,11 @@ mkdir lib
 cd lib
 ```
 
+### PyTorch
+```
+pip install torch==1.13.0
+```
+
 ### MineDojo
 ```
 sudo apt update -y 
