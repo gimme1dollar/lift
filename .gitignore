@@ -1,4 +1,5 @@
 asset/
+!asset/img
 !asset/task_proposals.pt
 
 wandb/ 
