@@ -1,23 +1,32 @@
-Unsupervised Learning with Foundation Models as Teachers
 
-## Installation
+# Overview
+<p align="center">
+<img src="./docs/static/images/lift_overview.png" width=70%>
+</img>
+</p>
+
+This is a repository for PyTorch implementation of paper "LiFT: Unsupervised Reinforcement Learning with Foundation Models as Teachers".
+
+# How to run
 
 ```
 conda create -n lift python=3.9
 conda activate lift
 ```
 
+## Libraries
+
 ```
 mkdir lib
 cd lib
 ```
 
-### PyTorch
+#### PyTorch
 ```
 pip install torch==1.13.0
 ```
 
-### MineDojo
+#### MineDojo
 ```
 sudo apt update -y 
 sudo apt install -y software-properties-common
@@ -40,13 +49,13 @@ cd minedojo/sim/Malmo/Minecraft
 ./gradlew shadowJar
 ```
 
-### MineRL
+#### MineRL
 ```
 pip install git+https://github.com/minerllabs/minerl # takes some times
 # fix self._shape = () for line 205 in minerl/herobraine/hero/spaces.py file 
 ```
 
-### MineCLIP
+#### MineCLIP
 ```
 git clone https://github.com/MineDojo/MineCLIP && cd MineCLIP
 # !! comment out minedojo in requirements.txt
@@ -57,8 +66,7 @@ pip install -e .
 # Download attn.pth in ./asset/mineclip/
 ```
 
-
-### VPT
+#### VPT
 ```
 git clone https://github.com/namsan96/Video-Pre-Training && cd Video-Pre-Training
 pip install -e .
@@ -70,19 +78,38 @@ pip install -e .
 # Download foundation-model-3x.model in ./asset/vpt/
 ```
 
-### SiMPL
+#### SiMPL
 ```
 git clone https://github.com/namsan96/SiMPL && cd SiMPL
 pip install -e .
 ```
 
-### torch_truncnorm
+#### torch_truncnorm
 ```
 git clone https://github.com/namsan96/torch_truncnorm.git && cd torch_truncnorm
 pip install -e .
 ```
 
-## Contribution
+#### others
+```
+pip install openai matplotlib wandb gym3 moviepy imageio pytube matplotlib pandas
+```
+
+## Training
+```
+# run cells in train.ipynb file
+```
+
+### Evaluation curve
+<p align="center">
+<img src="./asset/img/eval_curve.png" width=60%>
+</img>
+</p>
+
+### Trained model
+We provide a trained model with 100 epochs (above evaluation curve) at [this url](https://drive.google.com/file/d/1Ei9sU6gBXyC1qQohDGDlhOO58m-xcgy5/view?usp=sharing).
+
+# Contributions
 ```
 @inproceedings{
     nam2023lift,

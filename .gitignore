@@ -1,3 +1,8 @@
+asset/
+!asset/task_proposals.pt
+
+wandb/ 
+
 */.DS_Store
 
 # Byte-compiled / optimized / DLL files
